@@ -1,0 +1,821 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>Build-a-Bot</title>
+    <style>
+      :root {
+        --bg: #e8f4fb;
+        --panel: #ffffff;
+        --panel-2: #fdf3d8;
+        --ink: #1d2b36;
+        --ink-soft: #47606f;
+        --line: #b9d4e2;
+        --teal: #0e9594;
+        --teal-dark: #0a6e6d;
+        --coral: #ff6b4a;
+        --coral-dark: #d94f30;
+        --sun: #ffc53d;
+        --sun-dark: #8a6100;
+        --good: #1e9e57;
+        --bad: #d94f30;
+        --key-bg: #ffffff;
+        --key-line: #9fc3d6;
+        --shadow: 0 6px 0 rgba(29, 43, 54, 0.12);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #101c26;
+          --panel: #1b2c3a;
+          --panel-2: #2a2417;
+          --ink: #eef6fb;
+          --ink-soft: #a9c3d2;
+          --line: #33506266;
+          --line: #335062;
+          --teal: #2bb3b1;
+          --teal-dark: #5fd0ce;
+          --coral: #ff8266;
+          --coral-dark: #ff8266;
+          --sun: #ffc53d;
+          --sun-dark: #ffc53d;
+          --good: #4ecb7f;
+          --bad: #ff8266;
+          --key-bg: #22384a;
+          --key-line: #476b84;
+          --shadow: 0 6px 0 rgba(0, 0, 0, 0.35);
+        }
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; }
+      body {
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Chalkboard SE", "Comic Sans MS", ui-rounded, "Segoe UI", system-ui, sans-serif;
+        font-size: 19px;
+        line-height: 1.45;
+        -webkit-text-size-adjust: 100%;
+      }
+      .wrap { max-width: 660px; margin: 0 auto; padding: 14px 14px 40px; }
+      .toprow { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+      .home-pill {
+        display: inline-block;
+        background: var(--panel);
+        color: var(--teal-dark);
+        border: 2px solid var(--line);
+        border-radius: 999px;
+        padding: 8px 16px;
+        font-weight: 700;
+        font-size: 17px;
+        text-decoration: none;
+        box-shadow: var(--shadow);
+      }
+      .home-pill:active { transform: translateY(2px); box-shadow: none; }
+      .round-tag {
+        font-weight: 700; color: var(--ink-soft); font-size: 16px;
+        background: var(--panel); border: 2px solid var(--line);
+        border-radius: 999px; padding: 8px 14px;
+      }
+      h1 { font-size: 34px; line-height: 1.15; margin: 16px 0 4px; text-align: center; }
+      .tagline { text-align: center; color: var(--ink-soft); margin: 0 0 18px; font-size: 19px; }
+      .panel {
+        background: var(--panel);
+        border: 2px solid var(--line);
+        border-radius: 18px;
+        padding: 18px;
+        box-shadow: var(--shadow);
+        margin-bottom: 16px;
+      }
+      .panel h2 { margin: 0 0 8px; font-size: 25px; line-height: 1.2; }
+      .panel p { margin: 6px 0; }
+      .hidden { display: none !important; }
+
+      .big-btn {
+        display: block; width: 100%;
+        border: none; cursor: pointer;
+        border-radius: 16px;
+        padding: 16px 18px;
+        font: inherit; font-weight: 800; font-size: 21px;
+        background: var(--teal); color: #fff;
+        box-shadow: 0 5px 0 var(--teal-dark);
+        margin-top: 12px;
+        text-align: center;
+      }
+      .big-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--teal-dark); }
+      .big-btn.coral { background: var(--coral); box-shadow: 0 5px 0 var(--coral-dark); }
+      .big-btn.coral:active { box-shadow: 0 2px 0 var(--coral-dark); }
+      .big-btn.sun { background: var(--sun); color: #4a3400; box-shadow: 0 5px 0 #d99e16; }
+      .big-btn.sun:active { box-shadow: 0 2px 0 #d99e16; }
+      .ghost-btn {
+        display: inline-block; border: 2px solid var(--line); background: var(--panel);
+        color: var(--ink); border-radius: 12px; padding: 10px 16px;
+        font: inherit; font-weight: 700; font-size: 17px; cursor: pointer;
+      }
+      .howto { background: var(--panel-2); border-color: var(--sun); }
+      .howto ul { margin: 8px 0 4px; padding-left: 22px; }
+      .howto li { margin: 5px 0; }
+
+      label.field { display: block; font-weight: 800; margin: 14px 0 6px; font-size: 19px; }
+      input[type="text"], input[type="password"] {
+        width: 100%; font: inherit; font-size: 22px;
+        padding: 13px 14px; border-radius: 14px;
+        border: 3px solid var(--line); background: var(--panel);
+        color: var(--ink);
+      }
+      input:focus { outline: 3px solid var(--sun); outline-offset: 1px; border-color: var(--teal); }
+      .peek-row { display: flex; gap: 10px; align-items: stretch; margin-top: 10px; }
+      .peek-btn {
+        flex: 1; border: 2px dashed var(--teal); background: transparent; color: var(--teal-dark);
+        border-radius: 12px; padding: 11px; font: inherit; font-weight: 800; font-size: 17px; cursor: pointer;
+        user-select: none; -webkit-user-select: none; touch-action: none;
+      }
+      .shield-note { color: var(--ink-soft); font-size: 16px; margin-top: 8px; }
+      .error {
+        display: none; background: #ffe3da; color: #8c2d12; border: 2px solid var(--coral);
+        border-radius: 12px; padding: 10px 14px; font-weight: 700; margin-top: 12px;
+      }
+      @media (prefers-color-scheme: dark) { .error { background: #4a2417; color: #ffb59f; } }
+      .error.show { display: block; }
+
+      .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+      .cat-btn {
+        border: 3px solid var(--line); background: var(--panel); color: var(--ink);
+        border-radius: 14px; padding: 14px 10px; font: inherit; font-weight: 800; font-size: 18px; cursor: pointer;
+      }
+      .cat-btn[aria-pressed="true"] { border-color: var(--teal); background: var(--teal); color: #fff; }
+      @media (max-width: 420px) { .cat-grid { grid-template-columns: 1fr; } }
+
+      .scorebar {
+        display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 14px;
+      }
+      .score-chip {
+        background: var(--panel); border: 2px solid var(--line); border-radius: 14px;
+        padding: 8px 14px; font-weight: 800; font-size: 17px; text-align: center; min-width: 130px;
+      }
+      .score-chip .pts { display: block; font-size: 14px; color: var(--ink-soft); font-weight: 700; }
+      .score-chip.turn { border-color: var(--sun); box-shadow: 0 0 0 3px var(--sun); }
+
+      .stage { text-align: center; }
+      .bot-stage { position: relative; display: inline-block; }
+      .bot-stage svg { width: min(240px, 62vw); height: auto; display: block; }
+      .part { opacity: 0; transform: scale(0.6); transform-box: fill-box; transform-origin: center; transition: opacity 0.25s ease, transform 0.25s ease; }
+      .part.on { opacity: 1; transform: scale(1); }
+      .powered .heart-glow { filter: drop-shadow(0 0 6px #ff6b4a) drop-shadow(0 0 14px #ffc53d); }
+      @keyframes wave {
+        0%, 100% { transform: rotate(0deg); }
+        50% { transform: rotate(-38deg); }
+      }
+      .waving #part5 { animation: wave 0.7s ease-in-out 4; transform-box: view-box; transform-origin: 158px 112px; }
+      @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+      .powered { animation: bob 1.2s ease-in-out 3; }
+      .parts-line { font-weight: 800; font-size: 19px; margin-top: 4px; }
+      .parts-line .next { display: block; font-size: 16px; color: var(--ink-soft); font-weight: 700; }
+
+      .hint-line { text-align: center; font-size: 18px; color: var(--ink-soft); margin: 4px 0 2px; }
+      .hint-line strong { color: var(--ink); }
+      .word-row {
+        display: flex; flex-wrap: wrap; gap: 7px; justify-content: center;
+        margin: 12px 0 6px; min-height: 56px;
+      }
+      .blank {
+        width: 40px; height: 52px; border-bottom: 5px solid var(--teal);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 32px; font-weight: 900; text-transform: uppercase;
+      }
+      .blank.gap { border-bottom: none; width: 22px; }
+      .blank.missed-letter { color: var(--bad); border-color: var(--bad); }
+      @media (max-width: 420px) { .blank { width: 31px; height: 44px; font-size: 26px; } .blank.gap { width: 14px; } }
+
+      .misses { text-align: center; min-height: 34px; margin: 8px 0 2px; font-size: 17px; color: var(--ink-soft); }
+      .misses .chip {
+        display: inline-block; background: #ffe3da; color: #8c2d12; font-weight: 900;
+        border-radius: 8px; padding: 2px 9px; margin: 2px; text-transform: uppercase;
+      }
+      @media (prefers-color-scheme: dark) { .misses .chip { background: #4a2417; color: #ffb59f; } }
+      .worth { text-align: center; font-weight: 800; color: var(--sun-dark); margin: 2px 0 6px; }
+
+      .keyboard { display: grid; grid-template-columns: repeat(7, 1fr); gap: 7px; margin-top: 10px; }
+      .key {
+        border: 2px solid var(--key-line); background: var(--key-bg); color: var(--ink);
+        border-radius: 12px; padding: 12px 0; font: inherit; font-weight: 900; font-size: 21px;
+        cursor: pointer; box-shadow: 0 3px 0 var(--key-line);
+      }
+      .key:active { transform: translateY(2px); box-shadow: none; }
+      .key:disabled { cursor: default; transform: none; }
+      .key.right { background: var(--good); border-color: var(--good); color: #fff; box-shadow: none; opacity: 0.92; }
+      .key.wrong { background: transparent; color: var(--ink-soft); border-color: var(--line); box-shadow: none; opacity: 0.45; text-decoration: line-through; }
+
+      .whole-row { display: flex; gap: 9px; margin-top: 14px; }
+      .whole-row input { flex: 1; font-size: 20px; }
+      .whole-row button {
+        border: none; background: var(--sun); color: #4a3400; font: inherit; font-weight: 900;
+        border-radius: 14px; padding: 0 18px; cursor: pointer; box-shadow: 0 4px 0 #d99e16; font-size: 18px;
+      }
+      .whole-row button:active { transform: translateY(2px); box-shadow: none; }
+      .whole-note { font-size: 15.5px; color: var(--ink-soft); margin-top: 7px; text-align: center; }
+      .status { text-align: center; font-weight: 800; font-size: 19px; min-height: 28px; margin-top: 10px; }
+      .status.good { color: var(--good); }
+      .status.bad { color: var(--bad); }
+
+      .result { text-align: center; }
+      .result h2 { font-size: 29px; }
+      .result .the-word { font-size: 26px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-dark); }
+      .pass-emoji-bot { font-size: 20px; }
+      .center { text-align: center; }
+      .pass-screen { text-align: center; padding: 30px 18px; }
+      .pass-screen h2 { font-size: 30px; }
+      .pass-screen .big-emoji { font-size: 54px; line-height: 1; }
+
+      .confetti { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
+      .confetti span { position: absolute; top: 30%; left: 50%; width: 9px; height: 14px; border-radius: 2px; opacity: 0; }
+      @keyframes pop {
+        0% { opacity: 1; transform: translate(0, 0) rotate(0deg); }
+        100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--rot)); }
+      }
+      .confetti.go span { animation: pop 1.4s ease-out forwards; }
+
+      .reset-row { text-align: center; margin-top: 6px; }
+      .reset-row button { background: none; border: none; color: var(--ink-soft); font: inherit; font-size: 15px; text-decoration: underline; cursor: pointer; }
+      @media (prefers-reduced-motion: reduce) {
+        * { animation: none !important; transition: none !important; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="toprow">
+        <a class="home-pill" href="https://jesuslovestyler.com/">⌂ Home</a>
+        <span class="round-tag" id="roundTag">Round 1</span>
+      </div>
+
+      <h1>Guess the word, build the bot!</h1>
+      <p class="tagline">Every miss adds one part to Robbie the Robot. Solve the word before he's all built — or cheer when he powers on!</p>
+
+      <!-- ============ HOME / MODE PICK ============ -->
+      <section id="screen-home">
+        <div class="panel">
+          <h2>Who's playing?</h2>
+          <button class="big-btn" id="btnTwoPlayer" type="button">2 Players — pass &amp; play</button>
+          <button class="big-btn coral" id="btnSolo" type="button">Just Me — vs. the computer</button>
+        </div>
+        <div class="panel howto">
+          <h2>How to play</h2>
+          <ul>
+            <li>One player sets a secret word; the other guesses letters.</li>
+            <li>A right letter fills in the blanks. A miss builds one part of Robbie — he has <strong>10 parts</strong>.</li>
+            <li>Guess the word before Robbie is finished and the guesser scores: <strong>10 points per letter, minus 5 per miss</strong> (at least 10).</li>
+            <li>If Robbie gets fully built, he powers on, waves, and shows the word — and the word-setter wins the round!</li>
+            <li><strong>Whole-word guesses:</strong> you can try to solve it all at once, but a wrong whole-word guess adds <strong>2 parts</strong> at once. Careful!</li>
+          </ul>
+        </div>
+        <div class="scorebar" id="homeScores"></div>
+        <div class="reset-row"><button type="button" id="resetScoresHome">Reset all scores</button></div>
+      </section>
+
+      <!-- ============ TWO-PLAYER SETUP ============ -->
+      <section id="screen-setup" class="hidden">
+        <div class="panel">
+          <h2 id="setupTitle">Player 1, set the secret word</h2>
+          <p id="setupSub">Type a word only you can see. The letters stay hidden as dots.</p>
+          <label class="field" for="wordInput">Secret word (3–14 letters, one space allowed)</label>
+          <input type="password" id="wordInput" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="••••••••" />
+          <div class="peek-row">
+            <button class="peek-btn" id="peekBtn" type="button">Hold to peek</button>
+          </div>
+          <p class="shield-note">Shield the screen with your hand while you type, then hold “peek” only if you need a quick look.</p>
+          <label class="field" for="hintInput">Category or hint (optional)</label>
+          <input type="text" id="hintInput" autocomplete="off" placeholder="e.g. Animals, Bible places, yummy food…" />
+          <div class="error" id="setupError" role="alert"></div>
+          <button class="big-btn" id="btnLockWord" type="button">Lock it in &amp; pass the device</button>
+          <p class="center"><button class="ghost-btn" id="btnSetupBack" type="button">← Back</button></p>
+        </div>
+      </section>
+
+      <!-- ============ PASS SCREEN ============ -->
+      <section id="screen-pass" class="hidden">
+        <div class="panel pass-screen">
+          <div class="big-emoji" aria-hidden="true">🤖</div>
+          <h2 id="passTitle">Pass to Player 2!</h2>
+          <p id="passText">The word is locked in and hidden. No peeking!</p>
+          <button class="big-btn coral" id="btnStartGuessing" type="button">I'm ready — start guessing!</button>
+        </div>
+      </section>
+
+      <!-- ============ SOLO SETUP ============ -->
+      <section id="screen-solo" class="hidden">
+        <div class="panel">
+          <h2>Pick a category</h2>
+          <p>The computer will pick a secret word. Which kind do you want?</p>
+          <div class="cat-grid" id="catGrid">
+            <button class="cat-btn" type="button" data-cat="Animals">Animals</button>
+            <button class="cat-btn" type="button" data-cat="Bible">Bible People &amp; Places</button>
+            <button class="cat-btn" type="button" data-cat="Food">Food</button>
+            <button class="cat-btn" type="button" data-cat="Nature">Nature</button>
+            <button class="cat-btn" type="button" data-cat="House">Around the House</button>
+            <button class="cat-btn" type="button" data-cat="Random" aria-pressed="true">Random Mix</button>
+          </div>
+          <button class="big-btn" id="btnStartSolo" type="button">Start guessing!</button>
+          <p class="center"><button class="ghost-btn" id="btnSoloBack" type="button">← Back</button></p>
+        </div>
+      </section>
+
+      <!-- ============ GAME ============ -->
+      <section id="screen-game" class="hidden">
+        <div class="scorebar" id="gameScores"></div>
+        <div class="panel stage">
+          <div class="bot-stage" id="botStage">
+            <svg viewBox="0 0 220 244" role="img" aria-label="Robbie the Robot being built piece by piece">
+              <!-- part 1: base & feet -->
+              <g class="part" id="part1">
+                <ellipse cx="88" cy="212" rx="19" ry="7" fill="#ff6b4a"/>
+                <ellipse cx="132" cy="212" rx="19" ry="7" fill="#ff6b4a"/>
+                <rect x="48" y="222" width="124" height="11" rx="5.5" fill="#0e9594"/>
+              </g>
+              <!-- part 2: legs -->
+              <g class="part" id="part2">
+                <rect x="81" y="172" width="14" height="38" rx="6" fill="#7d99ae"/>
+                <rect x="125" y="172" width="14" height="38" rx="6" fill="#7d99ae"/>
+              </g>
+              <!-- part 3: body -->
+              <g class="part" id="part3">
+                <rect x="62" y="100" width="96" height="74" rx="16" fill="#0e9594"/>
+                <rect x="74" y="112" width="72" height="34" rx="8" fill="#bfe6e5"/>
+                <circle cx="86" cy="158" r="4.5" fill="#ffc53d"/>
+                <circle cx="134" cy="158" r="4.5" fill="#ffc53d"/>
+              </g>
+              <!-- part 4: left arm -->
+              <g class="part" id="part4">
+                <path d="M64 112 L36 140" stroke="#7d99ae" stroke-width="13" stroke-linecap="round" fill="none"/>
+                <circle cx="31" cy="145" r="9" fill="#ffc53d"/>
+              </g>
+              <!-- part 5: right arm -->
+              <g class="part" id="part5">
+                <path d="M156 112 L184 140" stroke="#7d99ae" stroke-width="13" stroke-linecap="round" fill="none"/>
+                <circle cx="189" cy="145" r="9" fill="#ffc53d"/>
+              </g>
+              <!-- part 6: head -->
+              <g class="part" id="part6">
+                <rect x="68" y="38" width="84" height="58" rx="15" fill="#7d99ae"/>
+                <rect x="78" y="47" width="64" height="40" rx="10" fill="#dff3f8"/>
+              </g>
+              <!-- part 7: eyes -->
+              <g class="part" id="part7">
+                <circle cx="95" cy="64" r="7.5" fill="#ffffff"/>
+                <circle cx="125" cy="64" r="7.5" fill="#ffffff"/>
+                <circle cx="95" cy="65" r="3.4" fill="#1d2b36"/>
+                <circle cx="125" cy="65" r="3.4" fill="#1d2b36"/>
+              </g>
+              <!-- part 8: antenna -->
+              <g class="part" id="part8">
+                <path d="M110 38 L110 20" stroke="#7d99ae" stroke-width="6" stroke-linecap="round"/>
+                <circle cx="110" cy="14" r="7.5" fill="#ff6b4a"/>
+              </g>
+              <!-- part 9: smile -->
+              <g class="part" id="part9">
+                <path d="M94 76 Q110 89 126 76" stroke="#1d2b36" stroke-width="4" stroke-linecap="round" fill="none"/>
+              </g>
+              <!-- part 10: chest heart light -->
+              <g class="part" id="part10">
+                <path class="heart-glow" d="M110 122 c-3.5-6-14-6.5-14 2.5 c0 6.5 7.5 10.5 14 15 c6.5-4.5 14-8.5 14-15 c0-9-10.5-8.5-14-2.5 z" fill="#ff6b4a"/>
+              </g>
+            </svg>
+            <div class="confetti" id="confetti"></div>
+          </div>
+          <div class="parts-line"><span id="partsCount">0 of 10 parts built</span><span class="next" id="nextPart"></span></div>
+        </div>
+
+        <p class="hint-line" id="turnLine"></p>
+        <p class="hint-line">Category / hint: <strong id="hintShown">—</strong></p>
+        <div class="word-row" id="wordRow" aria-label="Secret word blanks"></div>
+        <p class="worth" id="worthLine"></p>
+        <div class="misses" id="missesRow">Misses: none yet</div>
+        <div class="status" id="statusLine" aria-live="polite"></div>
+
+        <div class="keyboard" id="keyboard" aria-label="Letter keyboard"></div>
+
+        <div class="whole-row">
+          <input type="text" id="wholeInput" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Guess the whole word…" aria-label="Guess the whole word" />
+          <button type="button" id="btnWhole">Solve!</button>
+        </div>
+        <p class="whole-note">A right solve wins the round. A wrong solve adds <strong>2 robot parts</strong> at once!</p>
+
+        <div class="panel result hidden" id="resultPanel">
+          <h2 id="resultTitle"></h2>
+          <p id="resultText"></p>
+          <p>The word was <span class="the-word" id="resultWord"></span></p>
+          <button class="big-btn" id="btnNextRound" type="button">Next round</button>
+          <p class="center"><button class="ghost-btn" id="btnResultHome" type="button">Change players / mode</button></p>
+        </div>
+
+        <p class="center"><button class="ghost-btn" id="btnQuitRound" type="button">Quit this round</button></p>
+      </section>
+    </div>
+
+    <script>
+      "use strict";
+
+      /* ---------------- Word lists (solo mode) ---------------- */
+      var LISTS = {
+        "Animals": ["ELEPHANT","GIRAFFE","PENGUIN","BUTTERFLY","KANGAROO","DOLPHIN","OCTOPUS","SQUIRREL","TURTLE","RABBIT","MONKEY","ZEBRA","PANDA","KOALA","HORSE","CHICKEN","DONKEY","CAMEL","OTTER","BEAVER"],
+        "Bible": ["MOSES","NOAH","DAVID","ABRAHAM","JOSEPH","DANIEL","ESTHER","RUTH","JONAH","PETER","SAMUEL","ISAAC","BETHLEHEM","JERUSALEM","GALILEE","JORDAN","NAZARETH","EDEN","SOLOMON","ELIJAH"],
+        "Food": ["PANCAKE","BLUEBERRY","SANDWICH","POPCORN","MUFFIN","BANANA","ORANGE","CARROT","POTATO","CHEESE","YOGURT","WAFFLE","PRETZEL","NOODLE","PICKLE","TOMATO","BISCUIT","HONEY","APPLE PIE","MACARONI"],
+        "Nature": ["RAINBOW","SUNSHINE","WATERFALL","MOUNTAIN","OCEAN","FOREST","FLOWER","GARDEN","BREEZE","STREAM","MEADOW","DESERT","ISLAND","VOLCANO","SNOWFLAKE","THUNDER","SUNSET","RIVER","OAK TREE","STARLIGHT"],
+        "House": ["KITCHEN","PILLOW","BLANKET","WINDOW","BOOKSHELF","BATHTUB","CLOSET","CURTAIN","TOASTER","BROOM","MIRROR","CARPET","CHAIR","CLOCK","TABLE","COUCH","DOORBELL","BACKPACK","TOWEL","LAMP"]
+      };
+      var CAT_LABELS = { "Animals": "Animals", "Bible": "Bible People & Places", "Food": "Food", "Nature": "Nature", "House": "Around the House" };
+      var PART_NAMES = ["base & feet","legs","body","left arm","right arm","head","eyes","antenna","smile","heart light"];
+
+      /* ---------------- Scores (saved on this device only) ---------------- */
+      var SCORE_KEY = "buildabot.scores.v1";
+      var scores = {
+        p1: { wins: 0, points: 0 },
+        p2: { wins: 0, points: 0 },
+        solo: { wins: 0, points: 0 },
+        bot: { wins: 0 }
+      };
+      try {
+        var saved = localStorage.getItem(SCORE_KEY);
+        if (saved) {
+          var parsed = JSON.parse(saved);
+          if (parsed && parsed.p1 && parsed.p2 && parsed.solo && parsed.bot) scores = parsed;
+        }
+      } catch (e) { /* storage unavailable — play on without saving */ }
+      function saveScores() {
+        try { localStorage.setItem(SCORE_KEY, JSON.stringify(scores)); } catch (e) {}
+      }
+
+      /* ---------------- Game state ---------------- */
+      var state = {
+        screen: "home",
+        mode: "two",           // "two" | "solo"
+        round: 1,
+        setter: 1,             // two-player: who sets this round (1 or 2)
+        word: "",
+        hint: "",
+        guessed: {},           // letter -> true
+        wrongLetters: [],
+        wrong: 0,
+        over: false,
+        soloCat: "Random",
+        triedWhole: {}
+      };
+
+      function $(id) { return document.getElementById(id); }
+      function guesserNum() { return state.setter === 1 ? 2 : 1; }
+      function letterCount(word) { return word.replace(/ /g, "").length; }
+
+      function show(screenId) {
+        ["screen-home","screen-setup","screen-pass","screen-solo","screen-game"].forEach(function (id) {
+          $(id).classList.toggle("hidden", id !== screenId);
+        });
+        state.screen = screenId.replace("screen-", "");
+        $("roundTag").textContent = "Round " + state.round;
+        renderScores();
+        window.scrollTo(0, 0);
+      }
+
+      /* ---------------- Scoreboards ---------------- */
+      function scoreHTML() {
+        if (state.mode === "solo") {
+          return '<div class="score-chip">You<span class="pts">' + scores.solo.wins + ' round wins · ' + scores.solo.points + ' pts</span></div>' +
+                 '<div class="score-chip">Robbie<span class="pts">' + scores.bot.wins + ' round wins</span></div>';
+        }
+        var g = guesserNum();
+        return '<div class="score-chip' + (state.screen === "game" && g === 1 ? " turn" : "") + '">Player 1<span class="pts">' + scores.p1.wins + ' round wins · ' + scores.p1.points + ' pts</span></div>' +
+               '<div class="score-chip' + (state.screen === "game" && g === 2 ? " turn" : "") + '">Player 2<span class="pts">' + scores.p2.wins + ' round wins · ' + scores.p2.points + ' pts</span></div>';
+      }
+      function renderScores() {
+        $("homeScores").innerHTML =
+          '<div class="score-chip">Player 1<span class="pts">' + scores.p1.wins + ' wins · ' + scores.p1.points + ' pts</span></div>' +
+          '<div class="score-chip">Player 2<span class="pts">' + scores.p2.wins + ' wins · ' + scores.p2.points + ' pts</span></div>' +
+          '<div class="score-chip">Solo — You<span class="pts">' + scores.solo.wins + ' wins · ' + scores.solo.points + ' pts</span></div>';
+        $("gameScores").innerHTML = scoreHTML();
+      }
+
+      /* ---------------- Robot ---------------- */
+      function renderBot() {
+        for (var i = 1; i <= 10; i++) {
+          $("part" + i).classList.toggle("on", state.wrong >= i);
+        }
+        var stage = $("botStage");
+        stage.classList.toggle("powered", state.wrong >= 10);
+        stage.classList.toggle("waving", state.over);
+        $("partsCount").textContent = state.wrong + " of 10 parts built";
+        $("nextPart").textContent = state.over ? "" :
+          (state.wrong >= 10 ? "" : (state.wrong === 0 ? "First miss adds: " + PART_NAMES[0] : "Next miss adds: " + PART_NAMES[state.wrong]));
+      }
+
+      /* ---------------- Word display ---------------- */
+      function renderWord() {
+        var row = $("wordRow");
+        row.innerHTML = "";
+        state.word.split("").forEach(function (ch) {
+          var s = document.createElement("span");
+          if (ch === " ") { s.className = "blank gap"; s.textContent = ""; }
+          else {
+            s.className = "blank";
+            if (state.guessed[ch] || state.over) {
+              s.textContent = ch;
+              if (state.over && !state.guessed[ch] && state.wrong >= 10) s.classList.add("missed-letter");
+            } else s.textContent = "";
+          }
+          row.appendChild(s);
+        });
+        $("missesRow").innerHTML = state.wrongLetters.length === 0
+          ? "Misses: none yet"
+          : "Misses: " + state.wrongLetters.map(function (l) { return '<span class="chip">' + l + "</span>"; }).join("");
+        var pts = Math.max(10, 10 * letterCount(state.word) - 5 * state.wrong);
+        $("worthLine").textContent = state.over ? "" : "Solve it now and score " + pts + " points!";
+      }
+
+      /* ---------------- Keyboard ---------------- */
+      function buildKeyboard() {
+        var kb = $("keyboard");
+        kb.innerHTML = "";
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").forEach(function (letter) {
+          var b = document.createElement("button");
+          b.type = "button";
+          b.className = "key";
+          b.textContent = letter;
+          b.id = "key-" + letter;
+          b.addEventListener("click", function () { guessLetter(letter); });
+          kb.appendChild(b);
+        });
+      }
+      function renderKeyboard() {
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").forEach(function (letter) {
+          var b = $("key-" + letter);
+          if (!b) return;
+          if (state.guessed[letter]) {
+            b.disabled = true;
+            b.className = "key " + (state.word.indexOf(letter) >= 0 ? "right" : "wrong");
+          } else {
+            b.disabled = state.over;
+            b.className = "key";
+          }
+        });
+      }
+
+      function setStatus(msg, kind) {
+        var el = $("statusLine");
+        el.textContent = msg;
+        el.className = "status" + (kind ? " " + kind : "");
+      }
+
+      /* ---------------- Round flow ---------------- */
+      function beginRound(word, hint) {
+        state.word = word;
+        state.hint = hint;
+        state.guessed = {};
+        state.wrongLetters = [];
+        state.wrong = 0;
+        state.over = false;
+        state.triedWhole = {};
+        $("wholeInput").value = "";
+        $("resultPanel").classList.add("hidden");
+        $("botStage").classList.remove("powered", "waving");
+        $("confetti").className = "confetti";
+        $("confetti").innerHTML = "";
+        $("hintShown").textContent = hint;
+        $("turnLine").innerHTML = state.mode === "solo"
+          ? "You're the guesser — good luck!"
+          : "<strong>Player " + guesserNum() + "</strong> is guessing · Player " + state.setter + " set the word";
+        buildKeyboard();
+        renderBot(); renderWord(); renderKeyboard(); renderScores();
+        setStatus("", "");
+        show("screen-game");
+      }
+
+      function guessLetter(letter) {
+        if (state.screen !== "game" || state.over) return;
+        if (state.guessed[letter]) return;            // never count a guess twice
+        state.guessed[letter] = true;
+        if (state.word.indexOf(letter) >= 0) {
+          setStatus("Yes! “" + letter + "” is in the word!", "good");
+          renderWord(); renderKeyboard();
+          checkWin();
+        } else {
+          state.wrongLetters.push(letter);
+          state.wrong += 1;
+          setStatus("No “" + letter + "” — Robbie gets his " + PART_NAMES[state.wrong - 1] + "!", "bad");
+          renderBot(); renderWord(); renderKeyboard();
+          if (state.wrong >= 10) endRound(false);
+        }
+      }
+
+      function checkWin() {
+        var letters = state.word.replace(/ /g, "").split("");
+        var solved = letters.every(function (ch) { return state.guessed[ch]; });
+        if (solved) endRound(true);
+      }
+
+      function guessWhole() {
+        if (state.screen !== "game" || state.over) return;
+        var attempt = $("wholeInput").value.toUpperCase().replace(/[^A-Z ]/g, "").replace(/\s+/g, " ").trim();
+        if (attempt.length === 0) { setStatus("Type a word first, then tap Solve!", "bad"); return; }
+        if (state.triedWhole[attempt]) { setStatus("You already tried “" + attempt + "” — no extra parts taken.", ""); return; }
+        state.triedWhole[attempt] = true;
+        $("wholeInput").value = "";
+        if (attempt === state.word) {
+          state.word.replace(/ /g, "").split("").forEach(function (ch) { state.guessed[ch] = true; });
+          renderWord(); renderKeyboard();
+          endRound(true);
+        } else {
+          state.wrong = Math.min(10, state.wrong + 2);
+          setStatus("“" + attempt + "” isn't it — that added 2 parts to Robbie!", "bad");
+          renderBot(); renderWord(); renderKeyboard();
+          if (state.wrong >= 10) endRound(false);
+        }
+      }
+
+      function celebrate() {
+        var c = $("confetti");
+        c.innerHTML = "";
+        var colors = ["#ff6b4a", "#ffc53d", "#0e9594", "#1e9e57", "#7d99ae"];
+        for (var i = 0; i < 26; i++) {
+          var s = document.createElement("span");
+          var ang = Math.random() * Math.PI * 2, dist = 60 + Math.random() * 110;
+          s.style.setProperty("--dx", Math.cos(ang) * dist + "px");
+          s.style.setProperty("--dy", (Math.sin(ang) * dist - 30) + "px");
+          s.style.setProperty("--rot", (Math.random() * 540 - 270) + "deg");
+          s.style.background = colors[i % colors.length];
+          s.style.animationDelay = (Math.random() * 0.15) + "s";
+          c.appendChild(s);
+        }
+        c.className = "confetti go";
+      }
+
+      function endRound(guesserWon) {
+        state.over = true;
+        var letters = letterCount(state.word);
+        var pts = Math.max(10, 10 * letters - 5 * state.wrong);
+        var title, text;
+        if (state.mode === "solo") {
+          if (guesserWon) {
+            scores.solo.wins += 1; scores.solo.points += pts;
+            title = "You did it! 🎉";
+            text = "You solved it with " + state.wrong + " miss" + (state.wrong === 1 ? "" : "es") + " and scored " + pts + " points. Robbie waves hello with the parts you built!";
+            celebrate();
+          } else {
+            scores.bot.wins += 1;
+            title = "Robbie got built! 🤖";
+            text = "All 10 parts landed, so Robbie powers on, waves, and happily shows the word. Robbie wins this round — try again!";
+            $("botStage").classList.add("powered");
+          }
+          $("btnNextRound").textContent = "Play again — new word";
+        } else {
+          var g = guesserNum();
+          if (guesserWon) {
+            var rec = g === 1 ? scores.p1 : scores.p2;
+            rec.wins += 1; rec.points += pts;
+            title = "Player " + g + " did it! 🎉";
+            text = "Solved with " + state.wrong + " miss" + (state.wrong === 1 ? "" : "es") + " — that's " + pts + " points for Player " + g + ". Next round the roles swap: Player " + g + " sets the word!";
+            celebrate();
+          } else {
+            var srec = state.setter === 1 ? scores.p1 : scores.p2;
+            srec.wins += 1;
+            title = "Robbie got built! 🤖";
+            text = "All 10 parts landed, so Robbie powers on, waves, and happily shows the word. Player " + state.setter + " (the word-setter) wins the round! Next round the roles swap.";
+            $("botStage").classList.add("powered");
+          }
+          $("btnNextRound").textContent = "Next round — swap roles";
+        }
+        saveScores();
+        renderBot(); renderWord(); renderKeyboard(); renderScores();
+        $("resultTitle").textContent = title;
+        $("resultText").textContent = text;
+        $("resultWord").textContent = state.word;
+        $("resultPanel").classList.remove("hidden");
+        setStatus("", "");
+        $("resultPanel").scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+
+      /* ---------------- Setup: two players ---------------- */
+      function openSetup() {
+        $("setupTitle").textContent = "Player " + state.setter + ", set the secret word";
+        $("setupSub").textContent = "Player " + guesserNum() + " — eyes away! Type a word only Player " + state.setter + " can see. The letters stay hidden as dots.";
+        $("wordInput").value = "";
+        $("hintInput").value = "";
+        $("setupError").className = "error";
+        $("setupError").textContent = "";
+        show("screen-setup");
+        setTimeout(function () { $("wordInput").focus(); }, 60);
+      }
+
+      function wordError(msg) {
+        var e = $("setupError");
+        e.textContent = msg;
+        e.className = "error show";
+      }
+
+      function validateWord(raw) {
+        var w = raw.toUpperCase().trim().replace(/\s+/g, " ");
+        if (!/^[A-Z ]+$/.test(w)) return { ok: false, msg: "Letters A–Z only, please — no numbers or symbols." };
+        var spaces = (w.match(/ /g) || []).length;
+        if (spaces > 1) return { ok: false, msg: "One space at most — two words is plenty!" };
+        var n = letterCount(w);
+        if (n < 3) return { ok: false, msg: "Too short — a secret word needs at least 3 letters." };
+        if (n > 14) return { ok: false, msg: "Too long — keep it to 14 letters or fewer." };
+        if (w.split(" ").some(function (part) { return part.length === 0; })) return { ok: false, msg: "That spacing looks off — try again." };
+        return { ok: true, word: w };
+      }
+
+      function lockWord() {
+        var v = validateWord($("wordInput").value);
+        if (!v.ok) { wordError(v.msg); return; }
+        var hint = $("hintInput").value.trim();
+        state.pendingWord = v.word;
+        state.pendingHint = hint === "" ? "No hint given" : hint;
+        $("wordInput").value = "";   // clear the entry so the word leaves the form entirely
+        $("hintInput").value = "";
+        $("passTitle").textContent = "Pass to Player " + guesserNum() + "!";
+        $("passText").textContent = "Player " + state.setter + " locked in a word with " + letterCount(v.word) + " letters. Hand the device over — no peeking!";
+        show("screen-pass");
+      }
+
+      /* ---------------- Setup: solo ---------------- */
+      function pickSoloWord() {
+        var cat = state.soloCat;
+        if (cat === "Random") {
+          var keys = Object.keys(LISTS);
+          cat = keys[Math.floor(Math.random() * keys.length)];
+        }
+        var list = LISTS[cat];
+        var word = list[Math.floor(Math.random() * list.length)];
+        return { word: word, hint: CAT_LABELS[cat] };
+      }
+
+      /* ---------------- Wiring ---------------- */
+      $("btnTwoPlayer").addEventListener("click", function () { state.mode = "two"; openSetup(); });
+      $("btnSolo").addEventListener("click", function () { state.mode = "solo"; show("screen-solo"); });
+      $("btnSetupBack").addEventListener("click", function () { show("screen-home"); renderScores(); });
+      $("btnSoloBack").addEventListener("click", function () { show("screen-home"); renderScores(); });
+      $("btnLockWord").addEventListener("click", lockWord);
+      $("wordInput").addEventListener("keydown", function (e) { if (e.key === "Enter") lockWord(); });
+      $("hintInput").addEventListener("keydown", function (e) { if (e.key === "Enter") lockWord(); });
+
+      var peek = $("peekBtn"), wordInput = $("wordInput");
+      function peekOn(e) { e.preventDefault(); wordInput.type = "text"; }
+      function peekOff() { wordInput.type = "password"; }
+      peek.addEventListener("mousedown", peekOn);
+      peek.addEventListener("touchstart", peekOn, { passive: false });
+      peek.addEventListener("mouseup", peekOff);
+      peek.addEventListener("mouseleave", peekOff);
+      peek.addEventListener("touchend", peekOff);
+      peek.addEventListener("touchcancel", peekOff);
+
+      $("btnStartGuessing").addEventListener("click", function () {
+        beginRound(state.pendingWord, state.pendingHint);
+        state.pendingWord = "";
+      });
+
+      var catBtns = document.querySelectorAll(".cat-btn");
+      catBtns.forEach(function (b) {
+        b.addEventListener("click", function () {
+          catBtns.forEach(function (x) { x.setAttribute("aria-pressed", "false"); });
+          b.setAttribute("aria-pressed", "true");
+          state.soloCat = b.getAttribute("data-cat");
+        });
+      });
+      $("btnStartSolo").addEventListener("click", function () {
+        var pick = pickSoloWord();
+        beginRound(pick.word, pick.hint);
+      });
+
+      $("btnWhole").addEventListener("click", guessWhole);
+      $("wholeInput").addEventListener("keydown", function (e) { if (e.key === "Enter") guessWhole(); });
+
+      $("btnNextRound").addEventListener("click", function () {
+        state.round += 1;
+        if (state.mode === "solo") {
+          var pick = pickSoloWord();
+          beginRound(pick.word, pick.hint);
+        } else {
+          state.setter = guesserNum();   // swap roles
+          openSetup();
+        }
+      });
+      $("btnResultHome").addEventListener("click", function () { show("screen-home"); renderScores(); });
+      $("btnQuitRound").addEventListener("click", function () { show("screen-home"); renderScores(); });
+
+      function resetScores() {
+        scores = { p1: { wins: 0, points: 0 }, p2: { wins: 0, points: 0 }, solo: { wins: 0, points: 0 }, bot: { wins: 0 } };
+        saveScores(); renderScores();
+      }
+      $("resetScoresHome").addEventListener("click", resetScores);
+
+      document.addEventListener("keydown", function (e) {
+        if (state.screen !== "game" || state.over) return;
+        var t = e.target;
+        if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT")) return;
+        if (e.metaKey || e.ctrlKey || e.altKey) return;
+        if (/^[a-zA-Z]$/.test(e.key)) guessLetter(e.key.toUpperCase());
+      });
+
+      renderScores();
+    </script>
+    <script data-goatcounter="https://jesuslovestyler.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+  </body>
+</html>
